@@ -8,6 +8,8 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace MiddlewareListInterceptors;
 
@@ -15,7 +17,7 @@ public class ClientInterceptorLogOptions
 {
     public ILogger Logger { get; set; }
     public TextWriter APIOutput { get; set; }
-    public List<LogEventProperty> Attributes { get; set; }
+    public List<KeyValuePair<string, object>> Attributes { get; set; }
 }
 
 public class ServerInterceptorLogOptions
@@ -23,13 +25,13 @@ public class ServerInterceptorLogOptions
     public ILogger Logger { get; set; }
     public TextWriter APIOutput { get; set; }
     public TextWriter CtxOutput { get; set; }
-    public List<LogEventProperty> APIAttributes { get; set; }
-    public List<LogEventProperty> CtxAttributes { get; set; }
+    public List<KeyValuePair<string, object>> APIAttributes { get; set; }
+    public List<KeyValuePair<string, object>> CtxAttributes { get; set; }
 }
 
 public static class InterceptorLogOptionsFactory
 {
-    public static ClientInterceptorLogOptions GetClientInterceptorLogOptions(ILogger logger, List<LogEventProperty> attrs)
+    public static ClientInterceptorLogOptions GetClientInterceptorLogOptions(ILogger logger, List<KeyValuePair<string, object>> attrs)
     {
         return new ClientInterceptorLogOptions
         {
@@ -39,7 +41,7 @@ public static class InterceptorLogOptionsFactory
         };
     }
 
-    public static ServerInterceptorLogOptions GetServerInterceptorLogOptions(ILogger logger, List<LogEventProperty> attrs)
+    public static ServerInterceptorLogOptions GetServerInterceptorLogOptions(ILogger logger, List<KeyValuePair<string, object>> attrs)
     {
         return new ServerInterceptorLogOptions
         {
@@ -144,6 +146,9 @@ public class ServerLoggerInterceptor : Interceptor
         ServerCallContext context,
         UnaryServerMethod<TRequest, TResponse> continuation)
     {
+
+        var sw = Stopwatch.StartNew();
+
         LogCall<TRequest, TResponse>(MethodType.Unary, context);
 
         try
@@ -156,6 +161,11 @@ public class ServerLoggerInterceptor : Interceptor
             _logger.Error(ex, $"Error thrown by {context.Method}.");
 
             throw;
+        }
+        finally
+        {
+            sw.Stop();
+            _logger.Information($"Call duration: {sw.ElapsedMilliseconds} ms");
         }
     }
 
@@ -183,11 +193,6 @@ public static class InterceptorFactory
     {
 
         var logger = options.Logger;
-
-        foreach (var attr in options.Attributes)
-        {
-            logger = logger.ForContext(attr.Name, attr.Value, destructureObjects: true);
-        }
 
         var interceptors = new[]
         {
