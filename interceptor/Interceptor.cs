@@ -177,6 +177,7 @@ public class ServerLoggerInterceptor : Interceptor
         WriteMetadata(context.RequestHeaders, "caller-user");
         WriteMetadata(context.RequestHeaders, "caller-machine");
         WriteMetadata(context.RequestHeaders, "caller-os");
+        WriteMetadata(context.ResponseTrailers, "x-request-id");
 
         void WriteMetadata(Metadata headers, string key)
         {
@@ -187,7 +188,7 @@ public class ServerLoggerInterceptor : Interceptor
 }
 
 
-public static class InterceptorFactory
+public class InterceptorFactory
 {
     public static ClientLoggerInterceptor[] DefaultClientInterceptors(ClientInterceptorLogOptions options)
     {
@@ -203,14 +204,14 @@ public static class InterceptorFactory
         return interceptors;
     }
 
-    public static ServerLoggerInterceptor[] DefaultServerInterceptors(ServerInterceptorLogOptions options)
+    public static Interceptor[] DefaultServerInterceptors(ServerInterceptorLogOptions options)
     {
 
         var logger = options.Logger;
 
-        var interceptors = new[]
+        var interceptors = new Interceptor[]
         {
-            new ServerLoggerInterceptor(logger),
+            new RequestIdInterceptor(),
             new ServerLoggerInterceptor(logger)
         };
 
