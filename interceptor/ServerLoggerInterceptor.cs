@@ -87,7 +87,7 @@ public class ServerLoggerInterceptor : Interceptor
         var serviceName = serviceParts[^1]; // Get the last part
 
         LogContext.PushProperty(Constants.ServiceFieldKey, serviceName);
-        LogContext.PushProperty(Constants.MethodFieldKey, methodName);
+        // LogContext.PushProperty(Constants.MethodFieldKey, methodName);
     }
 
     private string ParsePeerAddress(string peer)
