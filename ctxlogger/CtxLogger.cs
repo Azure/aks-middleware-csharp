@@ -7,9 +7,9 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Serilog;
 using System;
-using Serilog.Context;
+using System.Linq;
 using System.Threading.Tasks;
-using ServiceHub.FieldOptions;
+using ServiceHub.MyGreeterV3.LogProto;
 
 namespace MiddlewareListInterceptors;
 
@@ -27,19 +27,18 @@ public class CtxLoggerInterceptor : Interceptor
         ServerCallContext context,
         UnaryServerMethod<TRequest, TResponse> continuation)
     {
-        // set source; can update with .PushProperty for entire service, or with .ForContext for limited scope
-        LogContext.PushProperty("source", "CtxLog");
-
-        // Note: creating a new ctxlogger to add things w/ ForContext (won't propagate to other interceptors)
-        LogContext.PushProperty(Constants.MethodFieldKey, context.Method);
-        
         if (request is IMessage message)
         {
             var req = FilterLogs(message);
-            string reqJson = JsonConvert.SerializeObject(req);
-
-            LogContext.PushProperty("request", req, destructureObjects: true);
-            _logger.Information($"API handler logger output. req: {reqJson}");
+            var ctxDictionary = new Dictionary<string, object>
+            {
+                { Constants.MethodFieldKey, context.Method },
+                { "request", req },
+                { "source", "CtxLog"}
+            };
+            // Serialize the dictionary to a JSON string
+            var json = JsonConvert.SerializeObject(ctxDictionary, new JsonSerializerSettings{TypeNameHandling = TypeNameHandling.Auto});
+            context.RequestHeaders.Add("ctxlog-data", json);
         }
 
         try
@@ -53,7 +52,6 @@ public class CtxLoggerInterceptor : Interceptor
         }
     }
 
-
     public static Dictionary<string, object> FilterLogs(IMessage message)
     {
         var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
@@ -62,9 +60,9 @@ public class CtxLoggerInterceptor : Interceptor
         JObject jObject = JObject.Parse(json);
         Dictionary<string, object> fieldMap = JsonHelper.ConvertJObjectToDictionary(jObject);
 
-        return FilterLoggableFields(fieldMap, message.Descriptor);
+        // Suppress the warning using the null-forgiving operator
+        return FilterLoggableFields(fieldMap, message.Descriptor) ?? new Dictionary<string, object>();
     }
-
 
     public static Dictionary<string, object> FilterLoggableFields(
         Dictionary<string, object> fieldMap, 
@@ -72,7 +70,7 @@ public class CtxLoggerInterceptor : Interceptor
     {
         if (fieldMap == null || descriptor == null)
         {
-            return fieldMap;
+            return fieldMap ?? new Dictionary<string, object>();
         }
 
         foreach (var fieldName in fieldMap.Keys.ToList())
@@ -98,14 +96,15 @@ public class CtxLoggerInterceptor : Interceptor
                 fieldDescriptor.FieldType == FieldType.Message)
             {
                 var subMessageDescriptor = fieldDescriptor.MessageType;
-                fieldMap[fieldName] = FilterLoggableFields(subMap, subMessageDescriptor);
+                if (subMessageDescriptor != null)
+                {
+                    fieldMap[fieldName] = FilterLoggableFields(subMap, subMessageDescriptor);
+                }
             }
         }
-
         return fieldMap;
     }
 }
-
 
 public static class JsonHelper
 {
@@ -124,7 +123,7 @@ public static class JsonHelper
             }
             else
             {
-                result[property.Name] = property.Value.ToObject<object>();
+                result[property.Name] = property.Value?.ToObject<object>();
             }
         }
         return result;
@@ -135,17 +134,9 @@ public static class JsonHelper
         var result = new List<object>();
         foreach (var item in jArray)
         {
-            if (item is JObject nestedJObject)
+            if (item != null)
             {
-                result.Add(ConvertJObjectToDictionary(nestedJObject));
-            }
-            else if (item is JArray nestedArray)
-            {
-                result.Add(ConvertJArrayToList(nestedArray));
-            }
-            else
-            {
-                result.Add(item.ToObject<object>());
+                result.Add(item.ToObject<object>()!);
             }
         }
         return result;

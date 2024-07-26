@@ -38,7 +38,7 @@ public class RequestIdInterceptor : Interceptor
         if (context.RequestHeaders.GetValue(Constants.RequestIDMetadataKey) is null)
         {
             string shortId = ShortID();
-            context.ResponseTrailers.Add(Constants.RequestIDMetadataKey, shortId);
+            context.RequestHeaders.Add(Constants.RequestIDMetadataKey, shortId);
         }
         return context;
     }
