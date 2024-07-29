@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+ </PropertyGroup>
+
+ <Target BeforeTargets="_Protobuf_SetProtoRoot" Name="_Protobuf_ServiceHub_SetAdditionalImportPaths">
+  <ItemGroup>
+   <Protobuf Update="@(Protobuf)">
+    <AdditionalImportDirs>%(Protobuf.AdditionalImportDirs);$(Protobuf_ServiceHubImportsPath)</AdditionalImportDirs>
+   </Protobuf>
+  </ItemGroup>
+ </Target>
+</Project>

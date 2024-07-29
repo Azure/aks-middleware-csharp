@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+ <PropertyGroup>
+  <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+
+  <Protobuf_ServiceHubImportsPath>$( [System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)native/include) )</Protobuf_ServiceHubImportsPath>
+ </PropertyGroup>
+ <Target Name="PrintProtobufServiceHubImportsPath" BeforeTargets="BeforeBuild">
+    <Message Text="LogProto.props: Protobuf_ServiceHubImportsPath: $(Protobuf_ServiceHubImportsPath)" Importance="high"/>
+  </Target>
+</Project>

@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="servicehub.mygreeterv3.logproto.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>ServiceHub.MyGreeterV3.LogProto</PackageId>
+    <Version>3.9.4</Version>
+    <Author>ADuke</Author>
+    <Product>LogProto</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.25.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.59.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.64.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="servicehub.mygreeterv3.logproto.props" PackagePath="build/" Pack="true" />
+    <None Include="servicehub.mygreeterv3.logproto.targets" PackagePath="build/" Pack="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="proto/log.proto" GrpcServices="None" />
+    <None Include="proto/log.proto" PackagePath="build/native/include/proto/" Pack="true" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="PrintProtobufServiceHubImportsPath">
+    <Message Text="Protobuf_ServiceHubImportsPath: $(Protobuf_ServiceHubImportsPath)" Importance="high"/>
+  </Target>
+
+</Project>
