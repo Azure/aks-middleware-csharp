@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.MyGreeterV3.LogProto</PackageId>
-    <Version>3.9.4</Version>
+    <Version>3.9.5</Version>
     <Author>ADuke</Author>
     <Product>LogProto</Product>
   </PropertyGroup>

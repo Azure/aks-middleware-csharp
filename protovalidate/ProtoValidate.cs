@@ -73,7 +73,7 @@ namespace MiddlewareListInterceptors
                 error = string.Join(", ", violations.Violations);
                 return false;
             }
-            error = null;
+            error = String.Empty;
             return true;
         }
     }
