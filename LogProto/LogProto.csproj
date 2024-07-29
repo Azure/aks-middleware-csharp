@@ -32,8 +32,4 @@
     <None Include="proto/log.proto" PackagePath="build/native/include/proto/" Pack="true" Visible="false" />
   </ItemGroup>
 
-  <Target Name="PrintProtobufServiceHubImportsPath">
-    <Message Text="Protobuf_ServiceHubImportsPath: $(Protobuf_ServiceHubImportsPath)" Importance="high"/>
-  </Target>
-
 </Project>
