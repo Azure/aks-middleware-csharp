@@ -7,15 +7,14 @@ using System.Diagnostics;
 
 namespace MiddlewareListInterceptors;
 
-
 // Server-side interceptor for logging
-public class ServerLoggerInterceptor : Interceptor
+public class ApiRequestLogInterceptor : Interceptor
 {
     private readonly Serilog.ILogger _logger;
 
-    public ServerLoggerInterceptor(Serilog.ILogger logger)
+    public ApiRequestLogInterceptor(Serilog.ILogger logger)
     {
-        _logger = logger.ForContext("source", "ApiRequestLog");
+        _logger = logger;
     }
 
     public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(
@@ -25,18 +24,18 @@ public class ServerLoggerInterceptor : Interceptor
     {
 
         DateTime start = DateTime.Now;
+        string peerAddress = ParsePeerAddress(context.Peer);
 
         // LogCall<TRequest, TResponse>(MethodType.Unary, context);
 
-        LogContext.PushProperty(Constants.SystemTag[0], Constants.SystemTag[1]);
-        LogContext.PushProperty(Constants.ComponentFieldKey, Constants.KindServerFieldValue);
-        LogContext.PushProperty(Constants.MethodTypeFieldKey, MethodType.Unary.ToString().ToLower());
-        LogContext.PushProperty(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+        var apiLogger = _logger.ForContext("source", "ApiRequestLog")
+                            .ForContext(Constants.SystemTag[0], Constants.SystemTag[1])
+                            .ForContext(Constants.ComponentFieldKey, Constants.KindServerFieldValue)
+                            .ForContext(Constants.MethodTypeFieldKey, MethodType.Unary.ToString().ToLower())
+                            .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))
+                            .ForContext(Constants.PeerAddressKey, peerAddress);
 
-        string peerAddress = ParsePeerAddress(context.Peer);
-        LogContext.PushProperty(Constants.PeerAddressKey, peerAddress);
-
-        SetServiceProperties(context);
+        SetServiceProperties(context, ref apiLogger);
 
         try
         {
@@ -44,18 +43,16 @@ public class ServerLoggerInterceptor : Interceptor
         }
         catch (Exception ex)
         {
-            // Note: The gRPC framework also logs exceptions thrown by handlers to .NET Core logging.
-            _logger.Error(ex, $"Error thrown by {context.Method}.");
+            apiLogger.Error(ex, $"Error thrown by {context.Method}.");
             throw;
         }
         finally
         {
-            LogContext.PushProperty(Constants.StatusCodeKey, context.Status.StatusCode);
-
             var duration = DateTime.Now - start;
-            LogContext.PushProperty(Constants.TimeMsKey, duration.TotalMilliseconds);
+            apiLogger = apiLogger.ForContext(Constants.StatusCodeKey, context.Status.StatusCode)
+                                .ForContext(Constants.TimeMsKey, duration.TotalMilliseconds);
             
-            _logger.Information($"finished call");
+            apiLogger.Information("finished call");
         }
     }
 
@@ -66,7 +63,7 @@ public class ServerLoggerInterceptor : Interceptor
         _logger.Warning($"Starting call. Type: {methodType}. Request: {typeof(TRequest)}. Response: {typeof(TResponse)}");
     }
 
-    private void SetServiceProperties(ServerCallContext context)
+    private void SetServiceProperties(ServerCallContext context, ref ILogger logger)
     {
         // TODO: This is a hacky way to get the service name and method name.
         // https://grpc.github.io/grpc/csharp-dotnet/api/Grpc.Core.ServerCallContext.html
@@ -86,8 +83,8 @@ public class ServerLoggerInterceptor : Interceptor
         var serviceParts = serviceNameWithPackage.Split('.');
         var serviceName = serviceParts[^1]; // Get the last part
 
-        LogContext.PushProperty(Constants.ServiceFieldKey, serviceName);
-        LogContext.PushProperty(Constants.MethodFieldKey, methodName);
+        logger = logger.ForContext(Constants.ServiceFieldKey, serviceName)
+                        .ForContext(Constants.MethodFieldKey, methodName);
     }
 
     private string ParsePeerAddress(string peer)
