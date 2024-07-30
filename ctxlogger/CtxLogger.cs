@@ -38,8 +38,8 @@ public class CtxLoggerInterceptor : Interceptor
                 { "source", "CtxLog"}
             };
             // Serialize the dictionary to a JSON string
-            var json = JsonConvert.SerializeObject(ctxDictionary, new JsonSerializerSettings{TypeNameHandling = TypeNameHandling.Auto});
-            context.RequestHeaders.Add("ctxlog-data", json);
+            var jsonCtxDict = JsonConvert.SerializeObject(ctxDictionary, new JsonSerializerSettings{TypeNameHandling = TypeNameHandling.Auto});
+            context.RequestHeaders.Add("ctxlog-data", jsonCtxDict);
         }
 
         try
@@ -56,10 +56,10 @@ public class CtxLoggerInterceptor : Interceptor
     public static Dictionary<string, object> FilterLogs(IMessage message)
     {
         var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
-        string json = jsonFormatter.Format(message);
+        string jsonMessage = jsonFormatter.Format(message);
 
-        JObject jObject = JObject.Parse(json);
-        Dictionary<string, object> fieldMap = JsonHelper.ConvertJObjectToDictionary(jObject);
+        JObject jObjectMessage = JObject.Parse(jsonMessage);
+        Dictionary<string, object> fieldMap = JsonHelper.ConvertJObjectToDictionary(jObjectMessage);
 
         // Suppress the warning using the null-forgiving operator
         return FilterLoggableFields(fieldMap, message.Descriptor) ?? new Dictionary<string, object>();
@@ -144,6 +144,8 @@ public static class JsonHelper
     }
 }
 
+// Using Caller Information Attributes
+// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/caller-information
 public static class LoggerExtensions
 {
     public static ILogger WithCtx(this ILogger logger, ServerCallContext context,
@@ -152,16 +154,16 @@ public static class LoggerExtensions
         [CallerMemberName] string callerMemberName = "")
     {
         // Extract JSON string from request headers
-        var json = context.RequestHeaders.GetValue("ctxlog-data");
+        var ctxLogJson = context.RequestHeaders.GetValue("ctxlog-data");
 
         // Check if json is null or empty
-        if (string.IsNullOrEmpty(json))
+        if (string.IsNullOrEmpty(ctxLogJson))
         {
             return logger;
         }
 
         // Deserialize the JSON string back to a dictionary with type information
-        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json, new JsonSerializerSettings
+        var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(ctxLogJson, new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto
         });
