@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public static class Constants
 {

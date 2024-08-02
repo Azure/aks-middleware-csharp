@@ -1,5 +1,5 @@
 package servicehub.fieldoptions;
-option csharp_namespace = "ServiceHub.MyGreeterV3.LogProto";
+option csharp_namespace = "ServiceHub.LogProto";
 // Import the google/protobuf/descriptor.proto file.
 import "google/protobuf/descriptor.proto";
 // Define a custom option for fields that indicates whether they should be logged or not

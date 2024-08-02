@@ -7,7 +7,7 @@ using Grpc.Core.Interceptors;
 using Serilog.Context;
 using Serilog;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public class RequestIdInterceptor : Interceptor
 {

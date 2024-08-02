@@ -9,10 +9,10 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceHub.MyGreeterV3.LogProto;
+using ServiceHub.LogProto;
 using System.Runtime.CompilerServices;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public class CtxLoggerInterceptor : Interceptor
 {
@@ -124,7 +124,11 @@ public static class JsonHelper
             }
             else
             {
-                result[property.Name] = property.Value?.ToObject<object>();
+                var value = property.Value?.ToObject<object>();
+                if (value != null)
+                {
+                    result[property.Name] = value;
+                }
             }
         }
         return result;

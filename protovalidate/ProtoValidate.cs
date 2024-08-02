@@ -7,7 +7,7 @@ using System;
 using Serilog;
 using System.Threading.Tasks;
 
-namespace MiddlewareListInterceptors
+namespace AKSMiddleware
 {
     public class ValidationInterceptor : Interceptor
     {

@@ -5,7 +5,7 @@ using System;
 using Serilog.Context;
 using System.Diagnostics;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 // Server-side interceptor for logging
 public class ApiRequestLogInterceptor : Interceptor

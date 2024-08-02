@@ -3,7 +3,7 @@ using Grpc.Core.Interceptors;
 using Serilog;
 using Serilog.Context;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 // Client-side interceptor for logging
 public class ClientLoggerInterceptor : Interceptor
@@ -20,8 +20,6 @@ public class ClientLoggerInterceptor : Interceptor
         ClientInterceptorContext<TRequest, TResponse> context,
         AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
-        // LogCall<TRequest, TResponse>(context.Method);
-
         DateTime start = DateTime.Now;
         
         LogContext.PushProperty(Constants.SystemTag[0], Constants.SystemTag[1]);
@@ -45,14 +43,8 @@ public class ClientLoggerInterceptor : Interceptor
         string serviceName = ExtractServiceName(context.Method.FullName);
         LogContext.PushProperty(Constants.ServiceFieldKey, serviceName);
 
-        // // Log the start of the call
-        // _logger.Information("Starting call. Type/Method: {Type} / {Method}",
-        //     context.Method.Type, context.Method.Name);
-
-        // Continue the call chain
         var response = continuation(request, context);
 
-        // Handle response asynchronously
         Task.Run(() => HandleResponse(response, start));
 
         return response;
@@ -79,13 +71,6 @@ public class ClientLoggerInterceptor : Interceptor
             _logger.Error(ex, $"Call error: {ex.Message}");
             throw;
         }
-    }
-
-    private void LogCall<TRequest, TResponse>(Method<TRequest, TResponse> method)
-        where TRequest : class
-        where TResponse : class
-    {
-        _logger.Information($"Starting call. Name: {method.Name}. Type: {method.Type}. Request: {typeof(TRequest)}. Response: {typeof(TResponse)}");
     }
 
     private string ExtractServiceName(string fullMethodName)

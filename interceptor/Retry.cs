@@ -5,7 +5,7 @@ using Polly.Retry;
 using System;
 using System.Threading.Tasks;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public class RetryInterceptor : Interceptor
 {

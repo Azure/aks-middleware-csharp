@@ -3,7 +3,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Grpc.Core.Utils;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public class MdForwardInterceptor : Interceptor
 {
