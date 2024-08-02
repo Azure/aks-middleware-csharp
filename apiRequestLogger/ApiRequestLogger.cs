@@ -26,12 +26,11 @@ public class ApiRequestLogInterceptor : Interceptor
         DateTime start = DateTime.Now;
         string peerAddress = ParsePeerAddress(context.Peer);
 
-        // LogCall<TRequest, TResponse>(MethodType.Unary, context);
-
         var apiLogger = _logger.ForContext("source", "ApiRequestLog")
                             .ForContext(Constants.SystemTag[0], Constants.SystemTag[1])
                             .ForContext(Constants.ComponentFieldKey, Constants.KindServerFieldValue)
                             .ForContext(Constants.MethodTypeFieldKey, MethodType.Unary.ToString().ToLower())
+                            .ForContext(Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context))
                             .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))
                             .ForContext(Constants.PeerAddressKey, peerAddress);
 
@@ -54,13 +53,6 @@ public class ApiRequestLogInterceptor : Interceptor
             
             apiLogger.Information("finished call");
         }
-    }
-
-    private void LogCall<TRequest, TResponse>(MethodType methodType, ServerCallContext context)
-        where TRequest : class
-        where TResponse : class
-    {
-        _logger.Warning($"Starting call. Type: {methodType}. Request: {typeof(TRequest)}. Response: {typeof(TResponse)}");
     }
 
     private void SetServiceProperties(ServerCallContext context, ref ILogger logger)

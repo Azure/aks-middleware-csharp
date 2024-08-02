@@ -15,6 +15,7 @@ public class RequestIdInterceptor : Interceptor
 
     public RequestIdInterceptor(ILogger logger)
     {
+        // Include a logger for debugging purposes
         _logger = logger.ForContext("source", "RequestIdInterceptor");
     }
 
@@ -23,24 +24,17 @@ public class RequestIdInterceptor : Interceptor
         ServerCallContext context,
         UnaryServerMethod<TRequest, TResponse> continuation)
     {
-        context = GenerateRequestID(context);
-
-        var requestid = GetRequestID(context);
-
-        LogContext.PushProperty(Constants.RequestIDLogKey, requestid);
-        
+        GenerateRequestID(ref context);
         return await continuation(request, context);
-
     }
 
-    private static ServerCallContext GenerateRequestID(ServerCallContext context)
+    private static void GenerateRequestID(ref ServerCallContext context)
     {
         if (context.RequestHeaders.GetValue(Constants.RequestIDMetadataKey) is null)
         {
             string shortId = ShortID();
             context.RequestHeaders.Add(Constants.RequestIDMetadataKey, shortId);
         }
-        return context;
     }
 
     private static string ShortID()
@@ -62,7 +56,6 @@ public class RequestIdInterceptor : Interceptor
     public static string GetRequestID(ServerCallContext context)
     {
         return context.RequestHeaders.GetValue(Constants.RequestIDMetadataKey) 
-           ?? context.ResponseTrailers.GetValue(Constants.RequestIDMetadataKey) 
            ?? string.Empty;
     }
 }

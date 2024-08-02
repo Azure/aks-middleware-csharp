@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.AKSMiddleware</PackageId>
-    <Version>1.0.0-alpha2</Version>
+    <Version>1.0.0-alpha5</Version>
     <Author>ServiceHub</Author>
     <Product>AKSMiddleware</Product>
   </PropertyGroup>
@@ -23,7 +23,7 @@
     <PackageReference Include="ServiceHub.LogProto" Version="1.0.0-alpha2" />
   </ItemGroup>
 
-  <!-- Remove LogProto directory from compilation; it is included instead as a PackageReference above -->
+  <!-- Remove LogProto directory from compilation; included instead as a PackageReference above -->
   <ItemGroup>
     <Compile Remove="LogProto\**\*" />
   </ItemGroup>
