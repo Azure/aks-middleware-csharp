@@ -8,12 +8,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.LogProto</PackageId>
-    <Version>1.0.0-alpha2</Version>
+    <Version>1.0.0</Version>
     <Author>ServiceHub</Author>
     <Product>LogProto</Product>
     <Description>
       LogProto is a library that defines protocol buffer messages for logging. It allows specifying "loggable" fields to ensure sensitive information is not logged, maintaining privacy for the user.    
     </Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +34,10 @@
   <ItemGroup>
     <Protobuf Include="proto/log.proto" GrpcServices="None" />
     <None Include="proto/log.proto" PackagePath="build/native/include/proto/" Pack="true" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
