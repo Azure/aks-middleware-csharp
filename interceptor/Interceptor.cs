@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace MiddlewareListInterceptors;
+namespace AKSMiddleware;
 
 public static class Constants
 {
@@ -48,13 +48,15 @@ public class InterceptorFactory
     }
 
     public static Interceptor[] DefaultServerInterceptors(ILogger logger)
-    {        
+    {     
+        ILogger apiLogger = logger.ForContext("source", "ApiRequestLog");
+
         var interceptors = new Interceptor[]
         {
             new ValidationInterceptor(logger),
             new RequestIdInterceptor(logger),
             new CtxLoggerInterceptor(logger),
-            new ServerLoggerInterceptor(logger)
+            new ApiRequestLogInterceptor(apiLogger)
         };
 
         return interceptors;
