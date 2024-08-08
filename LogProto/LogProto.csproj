@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.LogProto</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Author>ServiceHub</Author>
     <Product>LogProto</Product>
     <Description>
