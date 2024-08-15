@@ -5,11 +5,11 @@ using Serilog.Context;
 
 namespace AKSMiddleware;
 
-public class ClientLoggerInterceptor : Interceptor
+public class ClientApiRequestLogger : Interceptor
 {
     private readonly Serilog.ILogger _logger;
 
-    public ClientLoggerInterceptor(Serilog.ILogger logger)
+    public ClientApiRequestLogger(Serilog.ILogger logger)
     {
         _logger = logger.ForContext("source", "ApiRequestLog");
     }

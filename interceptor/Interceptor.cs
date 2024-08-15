@@ -41,7 +41,7 @@ public class InterceptorFactory
         {
             new RetryInterceptor(),
             new MdForwardInterceptor(),
-            new ClientLoggerInterceptor(logger)
+            new ClientApiRequestLogger(logger)
         };
 
         return interceptors;
@@ -56,7 +56,7 @@ public class InterceptorFactory
             new ValidationInterceptor(logger),
             new RequestIdInterceptor(logger),
             new CtxLoggerInterceptor(logger),
-            new ApiRequestLogInterceptor(apiLogger)
+            new ServerApiRequestLogger(apiLogger)
         };
 
         return interceptors;

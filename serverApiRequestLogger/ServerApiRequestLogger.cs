@@ -8,11 +8,11 @@ using System.Diagnostics;
 namespace AKSMiddleware;
 
 // Server-side interceptor for logging
-public class ApiRequestLogInterceptor : Interceptor
+public class ServerApiRequestLogger : Interceptor
 {
     private readonly Serilog.ILogger _logger;
 
-    public ApiRequestLogInterceptor(Serilog.ILogger logger)
+    public ServerApiRequestLogger(Serilog.ILogger logger)
     {
         _logger = logger;
     }
