@@ -88,6 +88,7 @@ public static class ArmPolicy
         return clientOptions;
     }
 
+    // Based off of gRPC standard here: https://chromium.googlesource.com/external/github.com/grpc/grpc/+/refs/tags/v1.21.4-pre1/doc/statuscodes.md
     public static StatusCode ConvertHTTPStatusToGRPCError(int httpStatusCode)
     {
         return httpStatusCode switch
