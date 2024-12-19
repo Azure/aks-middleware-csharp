@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 
 namespace AKSMiddleware;
 
+// Grpc log interceptor for server side operations
 public class CtxLoggerInterceptor : Interceptor
 {
     private readonly Serilog.ILogger _logger;

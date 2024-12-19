@@ -7,6 +7,7 @@ using Azure.Core;
 
 namespace AKSMiddleware;
 
+// Used for AzureSDK logging 
 public class LogRequestParams
 {
     public Serilog.ILogger Logger { get; set; }
@@ -15,7 +16,7 @@ public class LogRequestParams
     public object Response { get; set; }
     public Exception? Error { get; set; }
 
-    public LogRequestParams(Serilog.ILogger logger, DateTime startTime, object request, object response, Exception error)
+    public LogRequestParams(Serilog.ILogger logger, DateTime startTime, object request, object response, Exception? error)
     {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         StartTime = startTime;

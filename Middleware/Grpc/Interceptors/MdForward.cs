@@ -5,6 +5,7 @@ using Grpc.Core.Utils;
 
 namespace AKSMiddleware;
 
+// Foward metadata
 public class MdForwardInterceptor : Interceptor
 {
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(

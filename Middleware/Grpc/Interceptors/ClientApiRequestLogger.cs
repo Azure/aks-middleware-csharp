@@ -5,6 +5,7 @@ using Serilog.Context;
 
 namespace AKSMiddleware;
 
+// Grpc request log interceptor
 public class ClientApiRequestLogger : Interceptor
 {
     private readonly Serilog.ILogger _logger;
