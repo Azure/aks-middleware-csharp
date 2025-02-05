@@ -79,7 +79,7 @@ The following gRPC client interceptors are used by default.
 
 ### 3.1. <a id='mdforward'></a>mdforward
 
-Propagates MD from incoming to outgoing. Only need to be used in servers. No need to be used in a pure client app.
+Missing.
 
 
 ### 3.2. <a id='clientloggerapirequestresponselogger-1'></a>ClientLogger (api request/response logger)

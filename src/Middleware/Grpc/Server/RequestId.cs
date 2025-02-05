@@ -11,13 +11,7 @@ namespace AKSMiddleware;
 
 public class RequestIdInterceptor : Interceptor
 {
-    private readonly ILogger _logger;
-
-    public RequestIdInterceptor(ILogger logger)
-    {
-        // Include a logger for debugging purposes
-        _logger = logger.ForContext("source", "RequestIdInterceptor");
-    }
+    public RequestIdInterceptor(){}
 
     public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(
         TRequest request,

@@ -24,6 +24,8 @@ public class CtxLoggerInterceptor : Interceptor
         _logger = logger;
     }
 
+    // Best practices for gRPC interceptors in .NET:
+    // https://learn.microsoft.com/en-us/aspnet/core/grpc/interceptors?view=aspnetcore-9.0
     public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(
         TRequest request,
         ServerCallContext context,

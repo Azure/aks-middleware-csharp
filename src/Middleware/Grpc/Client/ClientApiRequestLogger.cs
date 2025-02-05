@@ -1,7 +1,8 @@
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Serilog;
-using Serilog.Context;
+using System;
+using System.Threading.Tasks;
 
 namespace AKSMiddleware;
 
@@ -33,16 +34,11 @@ public class ClientApiRequestLogger : Interceptor
             }
         }
 
-        string serviceName = ExtractServiceName(context.Method.FullName);
-
-        var logger = _logger.ForContext(Constants.ServiceFieldKey, serviceName)
+        var logger = _logger.WithServiceProperties(context.Method.FullName)
                             .ForContext(Constants.RequestIDLogKey, requestId)
-                            .ForContext(Constants.SystemTag[0], Constants.SystemTag[1])
-                            .ForContext(Constants.ComponentFieldKey, Constants.KindClientFieldValue)
-                            .ForContext(Constants.MethodFieldKey, context.Method.Name)
-                            .ForContext(Constants.MethodTypeFieldKey, context.Method.Type.ToString().ToLower())
-                            .ForContext(Constants.ComponentFieldKey, Constants.KindClientFieldValue);
-
+                            .ForContext(Constants.ComponentFieldKey, Constants.ComponentValueClient)
+                            .ForContext(Constants.MethodTypeFieldKey, context.Method.Type.ToString().ToLower());
+        
         var response = continuation(request, context);
         Task.Run(() => HandleResponse(response, start, logger));
         return response;
@@ -68,17 +64,5 @@ public class ClientApiRequestLogger : Interceptor
             logger.Error(ex, $"Call error: {ex.Message}");
             throw;
         }
-    }
-
-    private string ExtractServiceName(string fullMethodName)
-    {
-        var parts = fullMethodName.Split('/');
-        if (parts.Length < 2)
-        {
-            throw new InvalidOperationException("Unexpected gRPC method format.");
-        }
-        var serviceNameWithPackage = parts[1];
-        var serviceParts = serviceNameWithPackage.Split('.');
-        return serviceParts[^1]; // Get the last part
     }
 }

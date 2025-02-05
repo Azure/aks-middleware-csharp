@@ -1,9 +1,10 @@
+using Azure.Core;
+using Azure.ResourceManager;
 using Serilog;
 using System;
-using System.Net;
+using System.Web;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
-using Azure.Core;
 
 namespace AKSMiddleware;
 
@@ -27,179 +28,171 @@ public class LogRequestParams
 }
 
 public static class Logging
-{
-    private static readonly Dictionary<string, bool> ResourceTypes = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
     {
-        { "resourcegroups", true },
-        { "storageaccounts", true },
-        { "operationresults", true },
-        { "asyncoperations", true },
-        { "checknameavailability", true }
-    };
-
-    public static void LogRequest(LogRequestParams parameters)
-    {
-        if (parameters == null) throw new ArgumentNullException(nameof(parameters));
-
-        string method = string.Empty;
-        string service = string.Empty;
-        string requestUri = string.Empty;
-
-        switch (parameters.Request)
+        public static void LogRequest(LogRequestParams parameters)
         {
-            case HttpRequestMessage httpRequest:
-                method = httpRequest.Method.Method;
-                service = httpRequest.RequestUri?.Host ?? "unknown";
-                requestUri = httpRequest.RequestUri?.ToString() ?? "unknown";
-                break;
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
-            case Request azcoreRequest:
-                method = azcoreRequest.Method.Method;
-                service = azcoreRequest.Uri.Host;
-                requestUri = azcoreRequest.Uri.ToString();
-                break;
+            string method = string.Empty;
+            string service = string.Empty;
+            string requestUri = string.Empty;
 
-            default:
-                return; // Unknown request type, do nothing
-        }
+            switch (parameters.Request)
+            {
+                case HttpRequestMessage httpRequest:
+                    method = httpRequest.Method.Method;
+                    service = httpRequest.RequestUri?.Host ?? "unknown";
+                    requestUri = httpRequest.RequestUri?.ToString() ?? "unknown";
+                    break;
 
-        Uri parsedUri;
-        try
-        {
-            parsedUri = new Uri(requestUri);
-        }
-        catch (UriFormatException ex)
-        {
-            parameters.Logger.ForContext("source", "ApiRequestLog")
+                case Request azcoreRequest:
+                    method = azcoreRequest.Method.Method;
+                    service = azcoreRequest.Uri?.Host ?? "unknown";
+                    requestUri = azcoreRequest.Uri?.ToString() ?? "unknown";
+                    break;
+
+                default:
+                    return; // Unknown request type, do nothing
+            }
+
+            Uri parsedUri;
+            try
+            {
+                parsedUri = new Uri(requestUri);
+            }
+            catch (UriFormatException ex)
+            {
+                parameters.Logger.ForContext("source", "ApiRequestLog")
+                    .ForContext("protocol", "REST")
+                    .ForContext("method_type", "unary")
+                    .ForContext("code", "na")
+                    .ForContext("component", "client")
+                    .ForContext("time_ms", "na")
+                    .ForContext("method", method)
+                    .ForContext("service", service)
+                    .ForContext("url", requestUri)
+                    .ForContext("error", ex.Message)
+                    .Error("Error parsing request URL");
+                return;
+            }
+
+            string trimmedUri = TrimUrl(parsedUri);
+            string methodInfo = GetMethodInfo(method, trimmedUri);
+            double latency = (DateTime.UtcNow - parameters.StartTime).TotalMilliseconds;
+
+            var logEntry = parameters.Logger.ForContext("source", "ApiRequestLog")
                 .ForContext("protocol", "REST")
                 .ForContext("method_type", "unary")
-                .ForContext("code", "na")
                 .ForContext("component", "client")
-                .ForContext("time_ms", "na")
-                .ForContext("method", method)
+                .ForContext("time_ms", latency)
+                .ForContext("method", methodInfo)
                 .ForContext("service", service)
-                .ForContext("url", requestUri)
-                .ForContext("error", ex.Message)
-                .Error("Error parsing request URL");
-            return;
-        }
+                .ForContext("url", trimmedUri);
 
-        string trimmedUri = TrimUrl(parsedUri);
-
-        string methodInfo = GetMethodInfo(method, trimmedUri);
-        double latency = (DateTime.UtcNow - parameters.StartTime).TotalMilliseconds;
-
-        var logEntry = parameters.Logger.ForContext("source", "ApiRequestLog")
-            .ForContext("protocol", "REST")
-            .ForContext("method_type", "unary")
-            .ForContext("component", "client")
-            .ForContext("time_ms", latency)
-            .ForContext("method", methodInfo)
-            .ForContext("service", service)
-            .ForContext("url", trimmedUri);
-
-        if (parameters.Error != null || parameters.Response == null)
-        {
-            logEntry.ForContext("error", parameters.Error?.Message ?? "unknown error")
-                    .ForContext("code", "na")
-                    .Error("Finished call");
-        }
-        else
-        {
-            int statusCode;
-            string reasonPhrase;
-
-            if (parameters.Response is HttpResponseMessage httpResponse)
+            if (parameters.Error != null || parameters.Response == null)
             {
-                statusCode = (int)httpResponse.StatusCode;
-                reasonPhrase = httpResponse.ReasonPhrase;
-            }
-            else if (parameters.Response is Azure.Response azureResponse)
-            {
-                statusCode = azureResponse.Status;
-                reasonPhrase = azureResponse.ReasonPhrase;
+                logEntry.ForContext("error", parameters.Error?.Message ?? "unknown error")
+                        .ForContext("code", "na")
+                        .Error("Finished call");
             }
             else
             {
-                statusCode = 0;
-                reasonPhrase = "unknown";
-            }
+                int statusCode;
+                string reasonPhrase;
 
-            if (statusCode >= 200 && statusCode < 300)
-            {
-                logEntry.ForContext("error", "na")
-                        .ForContext("code", statusCode)
-                        .Information("finished call");
-            }
-            else
-            {
-                logEntry.ForContext("error", reasonPhrase ?? "Unknown error")
-                        .ForContext("code", statusCode)
-                        .Error("finished call");
+                if (parameters.Response is HttpResponseMessage httpResponse)
+                {
+                    statusCode = (int)httpResponse.StatusCode;
+                    reasonPhrase = httpResponse.ReasonPhrase ?? "unknown";
+                }
+                else if (parameters.Response is Azure.Response azureResponse)
+                {
+                    statusCode = azureResponse.Status;
+                    reasonPhrase = azureResponse.ReasonPhrase;
+                }
+                else
+                {
+                    statusCode = 0;
+                    reasonPhrase = "unknown";
+                }
+
+                if (statusCode >= 200 && statusCode < 300)
+                {
+                    logEntry.ForContext("error", "na")
+                            .ForContext("code", statusCode)
+                            .Information("finished call");
+                }
+                else
+                {
+                    logEntry.ForContext("error", reasonPhrase ?? "Unknown error")
+                            .ForContext("code", statusCode)
+                            .Error("finished call");
+                }
             }
         }
-    }
 
+        private static string GetMethodInfo(string method, string url)
+        {
+            string resourceIdString = TrimToResourceId(url);
 
-
-    private static string GetMethodInfo(string method, string url)
-    {
-        var urlParts = url.Split(new[] { "?api-version" }, StringSplitOptions.None);
+            try
+            { 
+                // Try to create a ResourceIdentifier with the trimmed and cleaned URL.
+                var resourceId = new ResourceIdentifier(resourceIdString);
+                string resourceType = resourceId.ResourceType.ToString();
+                if (!string.IsNullOrEmpty(resourceType))
+                {
+                    if (method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                    {
+                        bool isReadOperation = !string.IsNullOrEmpty(resourceId.Name);
+                        resourceType += isReadOperation ? " - READ" : " - LIST";
+                    }
+                    return $"{method} {resourceType}";
+                }
+            }
+            catch (Exception)
+            {
+                // If the URL is not a valid resource ID, log the URL as-is.
+            }
         
-        if (urlParts.Length < 2 && !urlParts[0].Contains("v1"))
-        {
             return $"{method} {url}";
+            
         }
 
-        var parts = urlParts[0].Split('/');
-        var resource = urlParts[0];
-        var counter = 0;
-
-        for (counter = parts.Length - 1; counter >= 0; counter--)
+        /// <summary>
+        /// Trims the URL to resource ID format.
+        /// </summary>
+        private static string TrimToResourceId(string url)
         {
-            var currToken = parts[counter].ToLowerInvariant();
-            var index = currToken.IndexOfAny(new[] { '?', '/' });
-            if (index != -1)
+            // If "/subscriptions/" exists, trim the URL starting from that segment.
+            int subscriptionsIndex = url.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+            string trimmedUrl = subscriptionsIndex >= 0 ? url.Substring(subscriptionsIndex) : url;
+
+            // Remove any query parameters.
+            int queryIndex = trimmedUrl.IndexOf('?');
+            if (queryIndex >= 0)
             {
-                currToken = currToken.Substring(0, index);
+                trimmedUrl = trimmedUrl.Substring(0, queryIndex);
             }
-            if (ResourceTypes.ContainsKey(currToken))
-            {
-                resource = currToken;
-                break;
-            }
+
+            return trimmedUrl;
         }
 
-        if (method == "GET")
+        /// <summary>
+        /// Trims the trailing api-version so it doesn't pollute the URL when logging.
+        /// </summary>
+        private static string TrimUrl(Uri uri)
         {
-            if (counter == parts.Length - 1)
-            {
-                resource += " - LIST";
-            }
-            else
-            {
-                resource += " - READ";
-            }
-        }
+            var queryParams = HttpUtility.ParseQueryString(uri.Query);
+            var apiVersion = queryParams["api-version"];
 
-        return $"{method} {resource}";
+            var baseUrl = $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath}";
+
+            if (!string.IsNullOrEmpty(apiVersion))
+            {
+                return $"{baseUrl}?api-version={apiVersion}";
+            }
+
+            return baseUrl;
+        }
     }
-
-
-    private static string TrimUrl(Uri uri)
-    {
-        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        var apiVersion = queryParams["api-version"];
-
-        var baseUrl = $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath}";
-
-        if (!string.IsNullOrEmpty(apiVersion))
-        {
-            return $"{baseUrl}?api-version={apiVersion}";
-        }
-
-        return baseUrl;
-    }
-
-    
-}

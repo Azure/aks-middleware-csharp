@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(AzureCoreTestFramework)" />
+    <ProjectReference Include="../src/Middleware/Middleware.csproj" />
   </ItemGroup>
 
   <ItemGroup>

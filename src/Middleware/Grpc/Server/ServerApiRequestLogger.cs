@@ -2,7 +2,6 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Serilog;
 using System;
-using Serilog.Context;
 using System.Diagnostics;
 
 namespace AKSMiddleware;
@@ -22,19 +21,16 @@ public class ServerApiRequestLogger : Interceptor
         ServerCallContext context,
         UnaryServerMethod<TRequest, TResponse> continuation)
     {
-
         DateTime start = DateTime.Now;
         string peerAddress = ParsePeerAddress(context.Peer);
 
-        var apiLogger = _logger.ForContext("source", "ApiRequestLog")
-                            .ForContext(Constants.SystemTag[0], Constants.SystemTag[1])
-                            .ForContext(Constants.ComponentFieldKey, Constants.KindServerFieldValue)
+        var apiRequestLogger = _logger.ForContext("source", "ApiRequestLog")
+                            .ForContext(Constants.ComponentFieldKey, Constants.ComponentValueServer)
                             .ForContext(Constants.MethodTypeFieldKey, MethodType.Unary.ToString().ToLower())
                             .ForContext(Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context))
                             .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))
-                            .ForContext(Constants.PeerAddressKey, peerAddress);
-
-        SetServiceProperties(context, ref apiLogger);
+                            .ForContext(Constants.PeerAddressKey, peerAddress)
+                            .WithServiceProperties(context.Method);
 
         try
         {
@@ -42,41 +38,17 @@ public class ServerApiRequestLogger : Interceptor
         }
         catch (Exception ex)
         {
-            apiLogger.Error(ex, $"Error thrown by {context.Method}.");
+            apiRequestLogger.Error(ex, $"Error thrown by {context.Method}.");
             throw;
         }
         finally
         {
             var duration = DateTime.Now - start;
-            apiLogger = apiLogger.ForContext(Constants.StatusCodeKey, context.Status.StatusCode)
-                                .ForContext(Constants.TimeMsKey, duration.TotalMilliseconds);
-            
-            apiLogger.Information("finished call");
+            apiRequestLogger = apiRequestLogger.ForContext(Constants.StatusCodeKey, context.Status.StatusCode)
+                                               .ForContext(Constants.TimeMsKey, duration.TotalMilliseconds);
+
+            apiRequestLogger.Information("finished call");
         }
-    }
-
-    private void SetServiceProperties(ServerCallContext context, ref ILogger logger)
-    {
-        // TODO: This is a hacky way to get the service name and method name.
-        // https://grpc.github.io/grpc/csharp-dotnet/api/Grpc.Core.ServerCallContext.html
-        
-        // Method format: "/package.Service/Method"
-        var fullMethodName = context.Method;
-        var parts = fullMethodName.Split('/');
-        if (parts.Length < 3)
-        {
-            throw new InvalidOperationException("Unexpected gRPC method format.");
-        }
-
-        var serviceNameWithPackage = parts[1];
-        var methodName = parts[2];
-
-        // Extract just the service name from package.Service
-        var serviceParts = serviceNameWithPackage.Split('.');
-        var serviceName = serviceParts[^1]; // Get the last part
-
-        logger = logger.ForContext(Constants.ServiceFieldKey, serviceName)
-                        .ForContext(Constants.MethodFieldKey, methodName);
     }
 
     private string ParsePeerAddress(string peer)

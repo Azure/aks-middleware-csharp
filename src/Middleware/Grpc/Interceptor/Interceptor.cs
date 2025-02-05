@@ -16,10 +16,11 @@ namespace AKSMiddleware;
 
 public static class Constants
 {
-    public static readonly string[] SystemTag = { "protocol", "grpc" };
+    public const string ProtocolKey = "protocol";
+    public const string ProtocolValueGrpc = "grpc";
     public const string ComponentFieldKey = "component";
-    public const string KindServerFieldValue = "server";
-    public const string KindClientFieldValue = "client";
+    public const string ComponentValueServer = "server";
+    public const string ComponentValueClient = "client";
     public const string ServiceFieldKey = "service";
     public const string MethodFieldKey = "method";
     public const string MethodTypeFieldKey = "method_type";
@@ -31,30 +32,29 @@ public static class Constants
     public const string PeerAddressKey = "peer_address";
 }
 
-
 public class InterceptorFactory
 {
-
     public static Interceptor[] DefaultClientInterceptors(ILogger logger)
     {
+        ILogger apiLogger = logger.ForContext("source", "ApiRequestLog");
+
         var interceptors = new Interceptor[]
         {
             new RetryInterceptor(),
-            new MdForwardInterceptor(),
-            new ClientApiRequestLogger(logger)
+            new ClientApiRequestLogger(apiLogger)
         };
 
         return interceptors;
     }
 
     public static Interceptor[] DefaultServerInterceptors(ILogger logger)
-    {     
+    {
         ILogger apiLogger = logger.ForContext("source", "ApiRequestLog");
 
         var interceptors = new Interceptor[]
         {
             new ValidationInterceptor(logger),
-            new RequestIdInterceptor(logger),
+            new RequestIdInterceptor(),
             new CtxLoggerInterceptor(logger),
             new ServerApiRequestLogger(apiLogger)
         };

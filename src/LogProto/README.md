@@ -13,3 +13,24 @@ This project defines the "loggable" field in `proto/log.proto`, allowing users t
 ## LogProto.csproj
 - Includes the .props and .targets files
 - Ensures that `log.proto` will be found at the proper path using `PackagePath`
+
+## Publishing/Usage
+
+To publish a new version of this package, you just need to run 
+
+```dotnet pack```
+
+Once the .nupkg file is created you need to run
+
+```dotnet nuget push /path/to/<file>.nupkg --api-key <key> --source https://api.nuget.org/v3/index.json```
+
+More information available here: https://learn.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli
+
+
+To use this log.proto file in a protofile within your service, you need to add the package to your .csproj file using 
+
+```dotnet add package ServiceHub.LogProto```
+
+From there, you can simply import it like so in your proto file:
+
+```import "proto/log.proto";```
