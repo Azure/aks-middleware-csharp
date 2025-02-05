@@ -37,6 +37,26 @@ public static class Logging
         { "checknameavailability", true }
     };
 
+    /// <summary>
+    /// Logs the details of an HTTP request/response to the logger.
+    /// 
+    /// Expected URL format:
+    /// - Must start with "https://management.azure.com/".
+    /// - Must include the "/subscriptions/{subscriptionId}" segment where {subscriptionId} is a valid GUID.
+    /// - For resource group level operations, the URL should contain "/resourceGroups/{resourceGroupName}".
+    /// - For listing resources at a top-level collection, the URL ends with the resource type segment (no trailing resource name).
+    /// - For read operations, the resource type segment is followed by the resource name.
+    /// 
+    /// If URL is malformed, the entire URL will be logged as-is.
+    /// 
+    /// Examples:
+    /// - List resource groups:
+    ///   https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups?api-version=version
+    /// - Read a specific resource group:
+    ///   https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg_name?api-version=version
+    /// - Read a specific storage account:
+    ///   https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg_name/providers/Microsoft.Storage/storageAccounts/account_name?api-version=version
+    /// </summary>
     public static void LogRequest(LogRequestParams parameters)
     {
         if (parameters == null) throw new ArgumentNullException(nameof(parameters));

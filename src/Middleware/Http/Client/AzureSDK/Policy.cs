@@ -21,15 +21,9 @@ public class LoggingPolicy : HttpPipelinePolicy
     public override void Process(HttpMessage message, ReadOnlyMemory<HttpPipelinePolicy> pipeline)
     {
         DateTime startTime = DateTime.UtcNow;
-
         try
         {
             ProcessNext(message, pipeline);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Exception occurred during HTTP processing.");
-            throw;
         }
         finally
         {
@@ -46,15 +40,9 @@ public class LoggingPolicy : HttpPipelinePolicy
     public override async ValueTask ProcessAsync(HttpMessage message, ReadOnlyMemory<HttpPipelinePolicy> pipeline)
     {
         DateTime startTime = DateTime.UtcNow;
-
         try
         {
             await ProcessNextAsync(message, pipeline).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Exception occurred during HTTP processing.");
-            throw;
         }
         finally
         {
