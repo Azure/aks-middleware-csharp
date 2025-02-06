@@ -36,12 +36,11 @@ public class InterceptorFactory
 {
     public static Interceptor[] DefaultClientInterceptors(ILogger logger)
     {
-        ILogger apiLogger = logger.ForContext("source", "ApiRequestLog");
-
+        var clientLogger = logger.ForContext("source", "ApiRequestLog");
         var interceptors = new Interceptor[]
         {
             new RetryInterceptor(),
-            new ClientApiRequestLogger(apiLogger)
+            new ClientApiRequestLogger(clientLogger)
         };
 
         return interceptors;
@@ -49,13 +48,15 @@ public class InterceptorFactory
 
     public static Interceptor[] DefaultServerInterceptors(ILogger logger)
     {
-        ILogger apiLogger = logger.ForContext("source", "ApiRequestLog");
+        // Use one enriched logger for API request logging and one for context logging
+        var apiLogger = logger.ForContext("source", "ApiRequestLog");
+        var ctxLogger = logger.ForContext("source", "CtxLog");
 
         var interceptors = new Interceptor[]
         {
-            new ValidationInterceptor(logger),
+            new ValidationInterceptor(apiLogger),
             new RequestIdInterceptor(),
-            new CtxLoggerInterceptor(logger),
+            new CtxLoggerInterceptor(ctxLogger),
             new ServerApiRequestLogger(apiLogger)
         };
 

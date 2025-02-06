@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AKSMiddleware;
+// TODO (tomabraham): Create a publicly accessible test api instead of using MyGreeterCsharp.Api.V1
 using MyGreeterCsharp.Api.V1;
 using ServiceHub.LogProto;
 

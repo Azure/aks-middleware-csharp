@@ -38,7 +38,6 @@ public class CtxLoggerInterceptor : Interceptor
             {
                 { Constants.MethodFieldKey, context.Method },
                 { "request", req },
-                { "source", "CtxLog"},
                 { Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context) }
             };
             // Serialize the dictionary to a JSON string

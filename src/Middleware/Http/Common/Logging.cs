@@ -28,6 +28,7 @@ public class LogRequestParams
 
 public static class Logging
 {
+    // TODO (tomabraham): See if we can use ResourceIdentifier to make this data driven for C# and Go middleware
     private static readonly Dictionary<string, bool> ResourceTypes = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
     {
         { "resourcegroups", true },

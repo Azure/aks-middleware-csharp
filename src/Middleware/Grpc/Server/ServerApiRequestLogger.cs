@@ -24,8 +24,7 @@ public class ServerApiRequestLogger : Interceptor
         DateTime start = DateTime.Now;
         string peerAddress = ParsePeerAddress(context.Peer);
 
-        var apiRequestLogger = _logger.ForContext("source", "ApiRequestLog")
-                            .ForContext(Constants.ComponentFieldKey, Constants.ComponentValueServer)
+        var apiRequestLogger = _logger.ForContext(Constants.ComponentFieldKey, Constants.ComponentValueServer)
                             .ForContext(Constants.MethodTypeFieldKey, MethodType.Unary.ToString().ToLower())
                             .ForContext(Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context))
                             .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))

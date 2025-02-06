@@ -8,6 +8,7 @@ This project defines the "loggable" field in `proto/log.proto`, allowing users t
 ## servicehub.logproto.targets
 - Adds an `<AdditionalImportDirs>` property to Protobuf compilation with the `Protobuf_ServiceHubImportsPath` filepath
 - Ensures that `log.proto` gets included in protobuf compilation in `api/v1`
+- Some additional context: https://blog.markvincze.com/include-multi-file-protobuf-package-in-dotnet/#:~:text=Luckily%2C%20there%20is%20a%20simple%20solution%2C%20we%20can,we%20do%20this%2C%20the%20build%20will%20work%20correctly
 
 
 ## LogProto.csproj

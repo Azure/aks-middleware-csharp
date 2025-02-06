@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace AKSMiddleware;
 
-// Grpc request log interceptor
+// gRPC request log interceptor
 public class ClientApiRequestLogger : Interceptor
 {
     private readonly Serilog.ILogger _logger;
 
     public ClientApiRequestLogger(Serilog.ILogger logger)
     {
-        _logger = logger.ForContext("source", "ApiRequestLog");
+        _logger = logger;
     }
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(
@@ -23,8 +23,8 @@ public class ClientApiRequestLogger : Interceptor
     {
         DateTime start = DateTime.Now;
         
-        var headers = context.Options.Headers;
         string requestId = string.Empty;
+        var headers = context.Options.Headers;
         if (headers != null)
         {
             var headerValue = headers.GetValue(Constants.RequestIDMetadataKey);
@@ -37,8 +37,9 @@ public class ClientApiRequestLogger : Interceptor
         var logger = _logger.WithServiceProperties(context.Method.FullName)
                             .ForContext(Constants.RequestIDLogKey, requestId)
                             .ForContext(Constants.ComponentFieldKey, Constants.ComponentValueClient)
-                            .ForContext(Constants.MethodTypeFieldKey, context.Method.Type.ToString().ToLower());
-        
+                            .ForContext(Constants.MethodTypeFieldKey, context.Method.Type.ToString().ToLower())
+                            .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+
         var response = continuation(request, context);
         Task.Run(() => HandleResponse(response, start, logger));
         return response;
@@ -53,8 +54,7 @@ public class ClientApiRequestLogger : Interceptor
             var status = call.GetStatus();
 
             logger = logger.ForContext(Constants.StatusCodeKey, status.StatusCode)
-                           .ForContext(Constants.TimeMsKey, duration.TotalMilliseconds)
-                           .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                           .ForContext(Constants.TimeMsKey, duration.TotalMilliseconds);
 
             logger.Information("finished call");
             return response;
