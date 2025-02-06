@@ -12,7 +12,7 @@
     <Author>ServiceHub</Author>
     <Product>LogProto</Product>
     <Description>
-      LogProto is a library that defines protocol buffer messages for logging. It allows specifying "loggable" fields to ensure sensitive information is not logged, maintaining privacy for the user.    
+      LogProto is a library that defines protocol buffer messages for logging. It allows specifying "loggable" fields to ensure insensitive information is logged and fields that don't have such annotation will not be logged, maintaining privacy for the user.    
     </Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
