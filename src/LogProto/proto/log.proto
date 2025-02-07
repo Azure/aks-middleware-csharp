@@ -1,0 +1,9 @@
+package servicehub.fieldoptions;
+option csharp_namespace = "ServiceHub.LogProto";
+// Import the google/protobuf/descriptor.proto file.
+import "google/protobuf/descriptor.proto";
+// Define a custom option for fields that indicates whether they should be logged or not
+// TODO (tomabraham): Add demo to on how to use LogProto and annotate protobuf message 
+extend google.protobuf.FieldOptions {
+  optional bool loggable = 50001 [default = true];
+}
