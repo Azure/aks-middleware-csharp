@@ -38,7 +38,9 @@ public class ClientApiRequestLogger : Interceptor
                             .ForContext(Constants.RequestIDLogKey, requestId)
                             .ForContext(Constants.ComponentFieldKey, Constants.ComponentValueClient)
                             .ForContext(Constants.MethodTypeFieldKey, context.Method.Type.ToString().ToLower())
-                            .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"));
+                            .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))
+                            // readding here since source field seems to get removed, even after adding in interceptor.cs
+                            .ForContext("source", "ApiRequestLog");
 
         var response = continuation(request, context);
         Task.Run(() => HandleResponse(response, start, logger));

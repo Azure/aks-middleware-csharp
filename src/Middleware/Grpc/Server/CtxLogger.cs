@@ -38,6 +38,8 @@ public class CtxLoggerInterceptor : Interceptor
             {
                 { Constants.MethodFieldKey, context.Method },
                 { "request", req },
+                // readding here since source field seems to get removed, even after adding in interceptor.cs
+                { "source", "CtxLog" },
                 { Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context) }
             };
             // Serialize the dictionary to a JSON string
