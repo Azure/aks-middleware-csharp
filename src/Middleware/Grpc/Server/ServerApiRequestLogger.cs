@@ -29,7 +29,9 @@ public class ServerApiRequestLogger : Interceptor
                             .ForContext(Constants.RequestIDLogKey, RequestIdInterceptor.GetRequestID(context))
                             .ForContext(Constants.StartTimeKey, start.ToString("yyyy-MM-ddTHH:mm:sszzz"))
                             .ForContext(Constants.PeerAddressKey, peerAddress)
-                            .WithServiceProperties(context.Method);
+                            .WithServiceProperties(context.Method)
+                            // readding here since source field seems to get removed, even after adding in interceptor.cs
+                            .ForContext("source", "ApiRequestLog");
 
         try
         {

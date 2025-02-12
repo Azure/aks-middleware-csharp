@@ -6,10 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.AKSMiddleware</PackageId>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Author>ServiceHub</Author>
     <Product>AKSMiddleware</Product>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,10 +24,6 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="ServiceHub.LogProto" Version="1.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
