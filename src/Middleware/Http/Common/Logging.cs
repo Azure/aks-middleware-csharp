@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Azure.Core;
+using Microsoft.AspNetCore.Http;
 
 namespace AKSMiddleware;
 
@@ -65,6 +66,7 @@ public static class Logging
         string method = string.Empty;
         string service = string.Empty;
         string requestUri = string.Empty;
+        string component = string.Empty;
 
         switch (parameters.Request)
         {
@@ -72,12 +74,21 @@ public static class Logging
                 method = httpRequest.Method.Method;
                 service = httpRequest.RequestUri?.Host ?? "unknown";
                 requestUri = httpRequest.RequestUri?.ToString() ?? "unknown";
+                component = "client";
                 break;
 
             case Request azcoreRequest:
                 method = azcoreRequest.Method.Method;
                 service = azcoreRequest.Uri.Host?? "unknown";
                 requestUri = azcoreRequest.Uri.ToString()?? "unknown";
+                component = "client";
+                break;
+            
+            case HttpRequest httpRequest:
+                method = httpRequest.Method;
+                service = httpRequest.Host.ToString();
+                requestUri = $"{httpRequest.Scheme}://{service}{httpRequest.Path}{httpRequest.QueryString}";
+                component = "server";
                 break;
 
             default:
@@ -95,7 +106,7 @@ public static class Logging
                 .ForContext("protocol", "REST")
                 .ForContext("method_type", "unary")
                 .ForContext("code", "na")
-                .ForContext("component", "client")
+                .ForContext("component", component)
                 .ForContext("time_ms", "na")
                 .ForContext("method", method)
                 .ForContext("service", service)
@@ -113,7 +124,7 @@ public static class Logging
         var logEntry = parameters.Logger.ForContext("source", "ApiRequestLog")
             .ForContext("protocol", "REST")
             .ForContext("method_type", "unary")
-            .ForContext("component", "client")
+            .ForContext("component", component)
             .ForContext("time_ms", latency)
             .ForContext("method", methodInfo)
             .ForContext("service", service)
@@ -128,7 +139,7 @@ public static class Logging
         else
         {
             int statusCode;
-            string reasonPhrase;
+            string? reasonPhrase;
 
             if (parameters.Response is HttpResponseMessage httpResponse)
             {
@@ -139,6 +150,11 @@ public static class Logging
             {
                 statusCode = azureResponse.Status;
                 reasonPhrase = azureResponse.ReasonPhrase;
+            }
+            else if (parameters.Response is HttpResponse restHttpResponse)
+            {
+                statusCode = restHttpResponse.StatusCode;
+                reasonPhrase = null; // ReasonPhrase is not available in HttpResponse
             }
             else
             {
