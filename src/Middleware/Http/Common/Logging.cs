@@ -181,6 +181,7 @@ public static class Logging
 
     private static string GetMethodInfo(string method, string url)
     {
+        // TODO: Migrate to using ARM's parseResourceID function to get the resource type.
         var urlParts = url.Split(new[] { "?api-version" }, StringSplitOptions.None);
         
         if (urlParts.Length < 2 && !urlParts[0].Contains("v1"))

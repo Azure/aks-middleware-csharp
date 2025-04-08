@@ -19,7 +19,6 @@ public class RestServerApiRequestLoggerTests
         _logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.TextWriter(_logOutput, LogEventLevel.Information, template)
-            .WriteTo.Console()
             .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
         _requestDelegateMock = new Mock<RequestDelegate>();
@@ -28,7 +27,7 @@ public class RestServerApiRequestLoggerTests
     }
 
     [Fact]
-    public async Task InvokeAsync_ShouldSuccessfulLogs()
+    public async Task InvokeAsync_ShouldReturnSuccessfulLogs()
     {
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethod.Get.Method;
