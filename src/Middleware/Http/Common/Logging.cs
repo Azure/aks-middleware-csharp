@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AKSMiddleware;
 
-// Used for AzureSDK logging 
+// Used for AzureSDK and Http Server logging 
 public class LogRequestParams
 {
     public Serilog.ILogger Logger { get; set; }

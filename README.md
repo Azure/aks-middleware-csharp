@@ -22,7 +22,9 @@
  	* 5.1. [mdforward](#mdforward-1)
  	* 5.2. [Restlogger (api request/response logger)](#Restloggerapirequestresponselogger)
  	* 5.3. [retry](#retry-1)
-* 6. [Project](#Project)
+* 6. [HTTP/Rest server](#6-httprest-server)
+	* 6.1. [ApiRequestLogger (api request/response logger)](#61-restserverapirequestlogger)
+* 7. [Project](#Project)
  	* 6.1. [Contributing](#Contributing)
  	* 6.2. [Trademarks](#Trademarks)
 
@@ -128,7 +130,16 @@ missing
 
 Missing.
 
-## 6. <a id='Project'></a>Project
+## 6. <a id='HTTPServer'></a>HTTP/Rest Server
+Provides loggers for rest servers.
+
+### 6.1 <a id='RestServerAPIRequestLogger'></a>RestServerAPIRequestLogger
+Provides request and response loggers when a request comes into a rest server.  
+
+##### <a id='Usage-2'></a>Usage
+To use this middleware, you need to register through Program file. Usage can be found in test code.
+
+## 7. <a id='Project'></a>Project
 
 > This repo has been populated by an initial template to help get you started. Please
 > make sure to update the content to build a great experience for community-building.
@@ -140,7 +151,7 @@ As the maintainer of this project, please make a few updates:
 - Understanding the security reporting process in SECURITY.MD
 - Remove this section from the README
 
-### 6.1. <a id='Contributing'></a>Contributing
+### 7.1. <a id='Contributing'></a>Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
@@ -154,7 +165,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-### 6.2. <a id='Trademarks'></a>Trademarks
+### 7.2. <a id='Trademarks'></a>Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
 trademarks or logos is subject to and must follow
