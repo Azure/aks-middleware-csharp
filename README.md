@@ -133,7 +133,7 @@ Missing.
 ## 6. <a id='HTTPServer'></a>HTTP/Rest Server
 Provides loggers for rest servers.
 
-### 6.1 <a id='RestServerAPIRequestLogger'></a>RestServerAPIRequestLogger
+### 6.1 <a id='RestServerAPIRequestLogger'></a>RestServerApiRequestLogger
 Provides request and response loggers when a request comes into a rest server.  
 
 ##### <a id='Usage-2'></a>Usage
