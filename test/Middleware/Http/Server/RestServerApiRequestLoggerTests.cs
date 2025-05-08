@@ -32,7 +32,6 @@ public class RestServerApiRequestLoggerTests
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethod.Post.Method;
         context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.ServicehubUserRp/Databases/database/resourcePatchCompleted?api-version=version");
-        // context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.Contoso/Databases/database/resourceReadValidate");
         context.Request.Scheme = "https";
         context.Request.Host = new HostString("my.userrp.com");
         context.Response.StatusCode = StatusCodes.Status200OK;
