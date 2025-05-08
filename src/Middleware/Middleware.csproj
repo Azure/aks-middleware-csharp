@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>ServiceHub.AKSMiddleware</PackageId>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
     <Author>ServiceHub</Author>
     <Product>AKSMiddleware</Product>
   </PropertyGroup>
@@ -25,6 +25,12 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="ServiceHub.LogProto" Version="1.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>test</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

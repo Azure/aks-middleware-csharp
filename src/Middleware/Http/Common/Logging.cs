@@ -1,8 +1,3 @@
-using Serilog;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Azure.Core;
 using Microsoft.AspNetCore.Http;
 
@@ -64,6 +59,7 @@ public static class Logging
         if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
         string method = string.Empty;
+        string methodInfo = string.Empty;
         string service = string.Empty;
         string requestUri = string.Empty;
         string component = string.Empty;
@@ -89,6 +85,7 @@ public static class Logging
                 service = httpRequest.Host.ToString();
                 requestUri = $"{httpRequest.Scheme}://{service}{httpRequest.Path}{httpRequest.QueryString}";
                 component = "server";
+                methodInfo = GetMethodInfoForHttpRequest(method, requestUri);
                 break;
 
             default:
@@ -118,7 +115,10 @@ public static class Logging
 
         string trimmedUri = TrimUrl(parsedUri);
 
-        string methodInfo = GetMethodInfo(method, trimmedUri);
+        if (string.IsNullOrEmpty(methodInfo))
+        {
+            methodInfo = GetMethodInfo(method, trimmedUri);
+        }
         double latency = (DateTime.UtcNow - parameters.StartTime).TotalMilliseconds;
 
         var logEntry = parameters.Logger.ForContext("source", "ApiRequestLog")
@@ -177,8 +177,6 @@ public static class Logging
         }
     }
 
-
-
     private static string GetMethodInfo(string method, string url)
     {
         // TODO: Migrate to using ARM's parseResourceID function to get the resource type.
@@ -223,7 +221,6 @@ public static class Logging
         return $"{method} {resource}";
     }
 
-
     private static string TrimUrl(Uri uri)
     {
         var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
@@ -239,5 +236,93 @@ public static class Logging
         return baseUrl;
     }
 
-    
+    /// <summary>
+    /// Extracts a normalized method name for logging from an HTTP method and URL path for UserRP services.
+    /// <para>
+    /// Logic:
+    /// <list type="bullet">
+    /// <item>If the URL ends with 'resourceXXX', extracts the resource name from the segment before the last and returns the singular resource name plus the XXX suffix (e.g., EmployeeReadValidate).</item>
+    /// <item>If the URL ends with 'subscriptionLifeCycleNotification', returns the singular resource name plus 'SubscriptionLifeCycleNotification'.</item>
+    /// <item>Otherwise, returns the singular resource name plus 'Item' (e.g., EmployeeItem), where the resource name is the segment before the last.</item>
+    /// <item>The HTTP method is prepended to the result (e.g., DELETE - EmployeeItem).</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Examples:
+    /// <code>
+    /// GetMethodInfoForHttpRequest("DELETE", "/.../Employees/{EmployeeName}") => "DELETE - EmployeeItem"
+    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/{EmployeeName}/resourceReadValidate") => "POST - EmployeeReadValidate"
+    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/subscriptionLifeCycleNotification") => "POST - EmployeeSubscriptionLifeCycleNotification"
+    /// </code>
+    /// </para>
+    /// </summary>
+    /// <param name="method">The HTTP method (e.g., GET, POST, DELETE).</param>
+    /// <param name="url">The HTTP URL path.</param>
+    /// <returns>A string in the format 'METHOD - ResourceOperation'.</returns>
+    internal static string GetMethodInfoForHttpRequest(string method, string url)
+    {
+        // Remove query string
+        int queryIndex = url.IndexOf('?');
+        string path = queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
+        // Split path into segments
+        string[] segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0)
+        {
+            return method;
+        }
+
+        // Find the last segment
+        string lastSegment = segments[^1];
+        string resourceName = string.Empty;
+        string methodName = string.Empty;
+
+        // Helper to singularize resource name (naive: remove trailing 's' if present)
+        string Singularize(string name) => name.EndsWith("s", StringComparison.OrdinalIgnoreCase) && name.Length > 1 ? name.Substring(0, name.Length - 1) : name;
+
+        // If ends with subscriptionLifeCycleNotification
+        if (lastSegment.Equals("subscriptionLifeCycleNotification", StringComparison.OrdinalIgnoreCase))
+        {
+            // Find the resource name before this segment
+            if (segments.Length >= 2)
+            {
+                resourceName = segments[^2];
+                resourceName = Singularize(resourceName);
+                methodName = $"{resourceName}SubscriptionLifeCycleNotification";
+            }
+            else
+            {
+                methodName = "SubscriptionLifeCycleNotification";
+            }
+        }
+        // If ends with resourceXXX (e.g., resourceReadValidate)
+        else if (lastSegment.StartsWith("resource", StringComparison.OrdinalIgnoreCase) && lastSegment.Length > "resource".Length)
+        {
+            // Find the resource name before this segment
+            if (segments.Length >= 3)
+            {
+                resourceName = segments[^3];
+                resourceName = Singularize(resourceName);
+                string suffix = lastSegment.Substring("resource".Length);
+                // Capitalize first letter of suffix
+                if (!string.IsNullOrEmpty(suffix))
+                    suffix = char.ToUpperInvariant(suffix[0]) + suffix.Substring(1);
+                methodName = $"{resourceName}{suffix}";
+            }
+            else
+            {
+                methodName = lastSegment;
+            }
+        }
+        else
+        {
+            // Default: treat as resource item (use the segment before the last if available)
+            if (segments.Length >= 2)
+            {
+                resourceName = segments[^2];
+                resourceName = Singularize(resourceName);
+            }
+            methodName = $"{resourceName}Item";
+        }
+        return $"{method} - {methodName}";
+    }
 }

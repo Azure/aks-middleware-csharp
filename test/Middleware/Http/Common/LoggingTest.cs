@@ -1,16 +1,8 @@
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using AKSMiddleware;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using Xunit;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
-using AKSMiddleware;
-
 
 public class LoggingTests
 {
@@ -141,5 +133,45 @@ public class LoggingTests
 
         var logString = logOutput.ToString();
         Assert.Contains("GET https://management.azure.com/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.Storage/storageAccounts", logString);
+    }
+
+    [Fact]
+    public void GetMethodInfoForHttpRequest_ResourceItem()
+    {
+        string method = "DELETE";
+        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name";
+        string expected = "DELETE - EmployeeItem";
+        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetMethodInfoForHttpRequest_ResourceReadValidate()
+    {
+        string method = "POST";
+        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourceReadValidate";
+        string expected = "POST - EmployeeReadValidate";
+        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetMethodInfoForHttpRequest_ResourcePatchValidate()
+    {
+        string method = "POST";
+        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourcePatchValidate?api-version=2023-01-01";
+        string expected = "POST - EmployeePatchValidate";
+        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetMethodInfoForHttpRequest_SubscriptionLifeCycleNotification()
+    {
+        string method = "POST";
+        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/subscriptionLifeCycleNotification";
+        string expected = "POST - EmployeeSubscriptionLifeCycleNotification";
+        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        Assert.Equal(expected, result);
     }
 }
