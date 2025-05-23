@@ -244,21 +244,21 @@ public static class Logging
     /// <item>If the URL ends with 'resourceXXX', extracts the resource name from the segment before the last and returns the singular resource name plus the XXX suffix (e.g., EmployeeReadValidate).</item>
     /// <item>If the URL ends with 'subscriptionLifeCycleNotification', returns the singular resource name plus 'SubscriptionLifeCycleNotification'.</item>
     /// <item>Otherwise, returns the singular resource name plus 'Item' (e.g., EmployeeItem), where the resource name is the segment before the last.</item>
-    /// <item>The HTTP method is prepended to the result (e.g., DELETE - EmployeeItem).</item>
+    /// <item>The HTTP method is prepended to the result (e.g., DELETE EmployeeItem).</item>
     /// </list>
     /// </para>
     /// <para>
     /// Examples:
     /// <code>
-    /// GetMethodInfoForHttpRequest("DELETE", "/.../Employees/{EmployeeName}") => "DELETE - EmployeeItem"
-    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/{EmployeeName}/resourceReadValidate") => "POST - EmployeeReadValidate"
-    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/subscriptionLifeCycleNotification") => "POST - EmployeeSubscriptionLifeCycleNotification"
+    /// GetMethodInfoForHttpRequest("DELETE", "/.../Employees/{EmployeeName}") => "DELETE EmployeeItem"
+    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/{EmployeeName}/resourceReadValidate") => "POST EmployeeReadValidate"
+    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/subscriptionLifeCycleNotification") => "POST EmployeeSubscriptionLifeCycleNotification"
     /// </code>
     /// </para>
     /// </summary>
     /// <param name="method">The HTTP method (e.g., GET, POST, DELETE).</param>
     /// <param name="url">The HTTP URL path.</param>
-    /// <returns>A string in the format 'METHOD - ResourceOperation'.</returns>
+    /// <returns>A string in the format 'METHOD ResourceOperation'.</returns>
     internal static string GetMethodInfoForHttpRequest(string method, string url)
     {
         // Remove query string
@@ -323,6 +323,6 @@ public static class Logging
             }
             methodName = $"{resourceName}Item";
         }
-        return $"{method} - {methodName}";
+        return $"{method} {methodName}";
     }
 }

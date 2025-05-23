@@ -39,7 +39,7 @@ public class RestServerApiRequestLoggerTests
         await _restServerApiRequestLogger.InvokeAsync(context);
         var logString = _logOutput.ToString();
         Assert.Contains("code: 200", logString);
-        Assert.Contains("POST - DatabasePatchCompleted", logString);
+        Assert.Contains("POST DatabasePatchCompleted", logString);
         Assert.Contains("component: \"server\"", logString);
     }
 
@@ -56,7 +56,7 @@ public class RestServerApiRequestLoggerTests
         await _restServerApiRequestLogger.InvokeAsync(context);
         var logString = _logOutput.ToString();
         Assert.Contains("code: 500", logString);
-        Assert.Contains("POST - DatabaseCreationValidate", logString);
+        Assert.Contains("POST DatabaseCreationValidate", logString);
         Assert.Contains("component: \"server\"", logString);
     }
 }

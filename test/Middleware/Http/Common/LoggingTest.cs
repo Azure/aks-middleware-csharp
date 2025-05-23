@@ -139,8 +139,8 @@ public class LoggingTests
     public void GetMethodInfoForHttpRequest_ResourceItem()
     {
         string method = "DELETE";
-        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name";
-        string expected = "DELETE - EmployeeItem";
+        string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name";
+        string expected = "DELETE EmployeeItem";
         string result = Logging.GetMethodInfoForHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
@@ -149,8 +149,8 @@ public class LoggingTests
     public void GetMethodInfoForHttpRequest_ResourceReadValidate()
     {
         string method = "POST";
-        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourceReadValidate";
-        string expected = "POST - EmployeeReadValidate";
+        string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourceReadValidate";
+        string expected = "POST EmployeeReadValidate";
         string result = Logging.GetMethodInfoForHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
@@ -159,8 +159,8 @@ public class LoggingTests
     public void GetMethodInfoForHttpRequest_ResourcePatchValidate()
     {
         string method = "POST";
-        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourcePatchValidate?api-version=2023-01-01";
-        string expected = "POST - EmployeePatchValidate";
+        string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourcePatchValidate?api-version=2023-01-01";
+        string expected = "POST EmployeePatchValidate";
         string result = Logging.GetMethodInfoForHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
@@ -169,8 +169,8 @@ public class LoggingTests
     public void GetMethodInfoForHttpRequest_SubscriptionLifeCycleNotification()
     {
         string method = "POST";
-        string url = "/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/subscriptionLifeCycleNotification";
-        string expected = "POST - EmployeeSubscriptionLifeCycleNotification";
+        string url = "https://my.privaterp.com/subscriptions/8ecadfc9-d1a3-4ea4-b844-0d9f87e4d7c8/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/subscriptionLifeCycleNotification";
+        string expected = "POST EmployeeSubscriptionLifeCycleNotification";
         string result = Logging.GetMethodInfoForHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
