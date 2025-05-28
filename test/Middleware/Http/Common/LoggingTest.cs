@@ -136,42 +136,42 @@ public class LoggingTests
     }
 
     [Fact]
-    public void GetMethodInfoForHttpRequest_ResourceItem()
+    public void GetMethodInfoForUserRpHttpRequest_ResourceItem()
     {
         string method = "DELETE";
         string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name";
         string expected = "DELETE EmployeeItem";
-        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        string result = Logging.GetMethodInfoForUserRpHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void GetMethodInfoForHttpRequest_ResourceReadValidate()
+    public void GetMethodInfoForUserRpHttpRequest_ResourceReadValidate()
     {
         string method = "POST";
         string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourceReadValidate";
         string expected = "POST EmployeeReadValidate";
-        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        string result = Logging.GetMethodInfoForUserRpHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void GetMethodInfoForHttpRequest_ResourcePatchValidate()
+    public void GetMethodInfoForUserRpHttpRequest_ResourcePatchValidate()
     {
         string method = "POST";
         string url = "https://my.privaterp.com/subscriptions/subscription_id/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/employee_name/resourcePatchValidate?api-version=2023-01-01";
         string expected = "POST EmployeePatchValidate";
-        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        string result = Logging.GetMethodInfoForUserRpHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void GetMethodInfoForHttpRequest_SubscriptionLifeCycleNotification()
+    public void GetMethodInfoForUserRpHttpRequest_SubscriptionLifeCycleNotification()
     {
         string method = "POST";
         string url = "https://my.privaterp.com/subscriptions/8ecadfc9-d1a3-4ea4-b844-0d9f87e4d7c8/resourceGroups/resource_group_name/providers/Microsoft.ServiceHubRp/Employees/subscriptionLifeCycleNotification";
         string expected = "POST EmployeeSubscriptionLifeCycleNotification";
-        string result = Logging.GetMethodInfoForHttpRequest(method, url);
+        string result = Logging.GetMethodInfoForUserRpHttpRequest(method, url);
         Assert.Equal(expected, result);
     }
 }

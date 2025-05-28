@@ -85,7 +85,7 @@ public static class Logging
                 service = httpRequest.Host.ToString();
                 requestUri = $"{httpRequest.Scheme}://{service}{httpRequest.Path}{httpRequest.QueryString}";
                 component = "server";
-                methodInfo = GetMethodInfoForHttpRequest(method, requestUri);
+                methodInfo = GetMethodInfoForUserRpHttpRequest(method, requestUri);
                 break;
 
             default:
@@ -250,16 +250,16 @@ public static class Logging
     /// <para>
     /// Examples:
     /// <code>
-    /// GetMethodInfoForHttpRequest("DELETE", "/.../Employees/{EmployeeName}") => "DELETE EmployeeItem"
-    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/{EmployeeName}/resourceReadValidate") => "POST EmployeeReadValidate"
-    /// GetMethodInfoForHttpRequest("POST", "/.../Employees/subscriptionLifeCycleNotification") => "POST EmployeeSubscriptionLifeCycleNotification"
+    /// GetMethodInfoForUserRpHttpRequest("DELETE", "/.../Employees/{EmployeeName}") => "DELETE EmployeeItem"
+    /// GetMethodInfoForUserRpHttpRequest("POST", "/.../Employees/{EmployeeName}/resourceReadValidate") => "POST EmployeeReadValidate"
+    /// GetMethodInfoForUserRpHttpRequest("POST", "/.../Employees/subscriptionLifeCycleNotification") => "POST EmployeeSubscriptionLifeCycleNotification"
     /// </code>
     /// </para>
     /// </summary>
     /// <param name="method">The HTTP method (e.g., GET, POST, DELETE).</param>
     /// <param name="url">The HTTP URL path.</param>
     /// <returns>A string in the format 'METHOD ResourceOperation'.</returns>
-    internal static string GetMethodInfoForHttpRequest(string method, string url)
+    internal static string GetMethodInfoForUserRpHttpRequest(string method, string url)
     {
         // Remove query string
         int queryIndex = url.IndexOf('?');
