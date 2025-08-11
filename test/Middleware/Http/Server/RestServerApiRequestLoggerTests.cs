@@ -30,17 +30,16 @@ public class RestServerApiRequestLoggerTests
     public async Task InvokeAsync_ShouldReturnSuccessfulLogs()
     {
         var context = new DefaultHttpContext();
-        context.Request.Method = HttpMethod.Get.Method;
-        context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.Storage/storageAccounts/account_name?api-version=version");
+        context.Request.Method = HttpMethod.Post.Method;
+        context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.ServicehubUserRp/Databases/database/resourcePatchCompleted?api-version=version");
         context.Request.Scheme = "https";
-        context.Request.Host = new HostString("management.azure.com");
-        context.Request.QueryString = new QueryString("?api-version=version");
+        context.Request.Host = new HostString("my.userrp.com");
         context.Response.StatusCode = StatusCodes.Status200OK;
 
         await _restServerApiRequestLogger.InvokeAsync(context);
         var logString = _logOutput.ToString();
         Assert.Contains("code: 200", logString);
-        Assert.Contains("GET storageaccounts - READ", logString);
+        Assert.Contains("POST DatabasePatchCompleted", logString);
         Assert.Contains("component: \"server\"", logString);
     }
 
@@ -48,17 +47,16 @@ public class RestServerApiRequestLoggerTests
     public async Task InvokeAsync_ShouldReturnErrorLogs()
     {
         var context = new DefaultHttpContext();
-        context.Request.Method = HttpMethod.Get.Method;
-        context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.Storage/storageAccounts/account_name?api-version=version");
+        context.Request.Method = HttpMethod.Post.Method;
+        context.Request.Path = new PathString("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.ServicehubUserRp/Databases/database/resourceCreationValidate?api-version=version");
         context.Request.Scheme = "https";
-        context.Request.Host = new HostString("management.azure.com");
-        context.Request.QueryString = new QueryString("?api-version=version");
+        context.Request.Host = new HostString("my.userrp.com");
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
         await _restServerApiRequestLogger.InvokeAsync(context);
         var logString = _logOutput.ToString();
         Assert.Contains("code: 500", logString);
-        Assert.Contains("GET storageaccounts - READ", logString);
+        Assert.Contains("POST DatabaseCreationValidate", logString);
         Assert.Contains("component: \"server\"", logString);
     }
 }

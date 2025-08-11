@@ -46,7 +46,7 @@ public class RestServerApiRequestLoggerIntegrationTests
         var client = testServer.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/test");
+        var response = await client.PostAsync("/subscriptions/sub_id/resourceGroups/rg_name/providers/Microsoft.ServicehubUserRp/Databases/database/resourcePatchCompleted?api-version=version", null);
 
         // Assert
         var logString = _logOutput.ToString();
